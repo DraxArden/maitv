@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0f17">
+<meta name="description" content="Tutti i tuoi servizi di streaming in un'unica home, come su una smart TV.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="mAiTV">
+<title>mAiTV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: a TV home screen — top bar, a "resume" hero, then rows of app tiles navigable with arrow keys */
+:root{
+  --bg:#0c0f17; --bg2:#141927; --panel:#1b2133; --line:#2a3148;
+  --fg:#eef0f6; --muted:#9298ad; --accent:#ffb547; --accent-ink:#1d1405;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+html,body{margin:0}
+body{padding-top:max(20px,env(safe-area-inset-top,0px));background:radial-gradient(1200px 600px at 80% -10%, #1d2540 0%, var(--bg) 60%) fixed, var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:max(48px,env(safe-area-inset-bottom,0px))}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+a{color:inherit}
+button,input{font:inherit;color:inherit}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.02em;line-height:1}
+.logo b{color:var(--accent);font-weight:800}
+.search{flex:1 1 260px;display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 18px;min-width:0}
+.search input{flex:1;min-width:0;background:none;border:0;padding:8px 0;font-size:15px}
+.search input::placeholder{color:var(--muted)}
+.search button{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:8px 16px;font-weight:600;cursor:pointer}
+.clock{text-align:right;margin-left:auto}
+.clock .t{font-family:var(--display);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.clock .d{color:var(--muted);font-size:12px;text-transform:capitalize;margin-top:4px}
+.ghost{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:500}
+.ghost[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:end;background:linear-gradient(120deg,var(--hue,#3a2d6b) 0%, var(--bg2) 70%);border:1px solid var(--line);border-radius:20px;padding:32px}
+.hero .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--muted);font-weight:600}
+.hero h1{font-family:var(--display);font-size:clamp(34px,6vw,64px);line-height:.95;margin:8px 0 10px;letter-spacing:-.03em;text-wrap:balance}
+.hero p{color:#c7cbdb;margin:0;max-width:52ch;line-height:1.5}
+.hero .cta{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--fg);color:var(--bg);text-decoration:none;border-radius:12px;padding:12px 20px;font-weight:600;border:0;cursor:pointer}
+.btn.alt{background:rgba(255,255,255,.08);color:var(--fg);border:1px solid var(--line)}
+@media (max-width:640px){.hero{grid-template-columns:1fr;padding:22px}.hero .cta{justify-content:flex-start}}
+
+/* rows */
+section h2{font-family:var(--display);font-size:20px;font-weight:700;margin:0 0 14px;display:flex;align-items:baseline;gap:10px}
+section h2 small{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:400}
+.row{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:16px}
+@media (max-width:420px){.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
+.tile{position:relative;aspect-ratio:16/10;max-width:100%;border-radius:14px;background:var(--tile,#333);display:flex;flex-direction:column;justify-content:space-between;padding:14px;text-decoration:none;color:#fff;overflow:hidden;
+  transition:transform .18s ease, box-shadow .18s ease;box-shadow:0 0 0 1px rgba(255,255,255,.06) inset}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.14),transparent 45%,rgba(0,0,0,.25));pointer-events:none}
+.tile .mono{font-family:var(--display);font-weight:800;font-size:40px;line-height:.9;letter-spacing:-.04em;opacity:.92}
+.tile .name{font-weight:600;font-size:14px;line-height:1.2;position:relative;z-index:1}
+.tile .tag{font-size:11px;opacity:.75;font-weight:500}
+.tile:focus-visible,.tile:hover{transform:scale(1.06);box-shadow:0 0 0 3px var(--accent),0 18px 40px rgba(0,0,0,.5);outline:none;z-index:2}
+.tile.add{background:transparent;border:2px dashed var(--line);color:var(--muted);align-items:center;justify-content:center;gap:6px;cursor:pointer;font-weight:600}
+.tile.add .plus{font-size:34px;line-height:1}
+.tile .x{position:absolute;top:8px;right:8px;z-index:3;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:16px;cursor:pointer;display:none}
+.editing .tile .x{display:block}
+.editing #myApps .tile:not(.add){animation:wob .5s ease-in-out infinite alternate}
+@keyframes wob{from{transform:rotate(-.6deg)}to{transform:rotate(.6deg)}}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}.editing #myApps .tile:not(.add){animation:none}}
+
+/* catalog dialog */
+.sheet{position:fixed;inset:0;background:rgba(5,7,12,.72);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:20}
+.sheet .box{background:var(--bg2);border:1px solid var(--line);border-radius:18px;width:min(720px,100%);max-height:100%;overflow:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+.sheet h3{font-family:var(--display);margin:0;font-size:22px}
+.cat{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.cat label{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.cat .dot{width:14px;height:14px;border-radius:4px;flex:none}
+.cat input{accent-color:var(--accent)}
+.custom{display:grid;grid-template-columns:1fr 1.6fr auto;gap:8px}
+@media (max-width:560px){.custom{grid-template-columns:1fr}}
+.custom input{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.err{color:#ff8f8f;font-size:13px;margin:0}
+.hint{color:var(--muted);font-size:13px;line-height:1.5;margin:0}
+.foot{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:18px}
+kbd{font-family:var(--body);background:var(--panel);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-size:12px;color:var(--fg)}
+</style>
+</head>
+<body>
+
+
+<div class="wrap" id="app">
+  <header class="top">
+    <div class="logo">m<b>Ai</b>TV</div>
+    <form class="search" id="searchForm" role="search">
+      <input id="q" type="search" placeholder="Cerca un film o una serie su tutti i servizi" aria-label="Cerca un titolo">
+      <button type="submit">Cerca</button>
+    </form>
+    <button class="ghost" id="editBtn" aria-pressed="false">Modifica</button>
+    <div class="clock"><div class="t" id="time">--:--</div><div class="d" id="date"></div></div>
+  </header>
+
+  <div class="hero" id="hero">
+    <div>
+      <div class="eyebrow" id="heroEyebrow">Riprendi da dove eri</div>
+      <h1 id="heroTitle">Netflix</h1>
+      <p id="heroText">Ogni app si apre nella sua finestra, con il tuo account già collegato. Usa le frecce della tastiera o del telecomando per muoverti e Invio per aprire.</p>
+    </div>
+    <div class="cta">
+      <a class="btn tile-like" id="heroGo" href="#" target="_blank" rel="noopener">▶ Apri</a>
+    </div>
+  </div>
+
+  <section>
+    <h2>Le tue app <small id="count"></small></h2>
+    <div class="row" id="myApps"></div>
+  </section>
+
+  <section>
+    <h2>Gratis in Italia <small>con o senza registrazione</small></h2>
+    <div class="row" id="freeApps"></div>
+  </section>
+
+  <div class="foot">
+    <span><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> muoviti</span>
+    <span><kbd>Invio</kbd> apri</span>
+    <span><kbd>/</kbd> cerca</span>
+    <span>La ricerca usa JustWatch Italia per dirti dove guardare un titolo.</span>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <h3 id="sheetTitle">Scegli le tue app</h3>
+    <div class="cat" id="catalog"></div>
+    <div>
+      <p class="hint" style="margin-bottom:8px">Aggiungi un servizio che non è in elenco:</p>
+      <form class="custom" id="customForm">
+        <input id="cName" placeholder="Nome (es. Rakuten TV)" aria-label="Nome del servizio">
+        <input id="cUrl" placeholder="Indirizzo (es. rakuten.tv/it)" aria-label="Indirizzo del servizio">
+        <button class="btn" type="submit">Aggiungi</button>
+      </form>
+      <p class="err" id="cErr" hidden></p>
+    </div>
+    <div style="display:flex;justify-content:flex-end"><button class="btn" id="closeSheet">Fatto</button></div>
+  </div>
+</div>
+
+<script>
+const CATALOG = [
+  {id:"netflix",  name:"Netflix",            url:"https://www.netflix.com/browse",           tag:"Film e serie", color:"#8e1b22"},
+  {id:"prime",    name:"Prime Video",        url:"https://www.primevideo.com",               tag:"Film e serie", color:"#1b4f7a"},
+  {id:"disney",   name:"Disney+",            url:"https://www.disneyplus.com/it-it",         tag:"Film e serie", color:"#1d2a6b"},
+  {id:"now",      name:"NOW",                url:"https://www.nowtv.it",                     tag:"Sky on demand", color:"#22504a"},
+  {id:"skygo",    name:"Sky Go",             url:"https://skygo.sky.it",                     tag:"Clienti Sky",  color:"#2b3c8a"},
+  {id:"appletv",  name:"Apple TV+",          url:"https://tv.apple.com/it",                  tag:"Serie originali", color:"#3a3d45"},
+  {id:"paramount",name:"Paramount+",         url:"https://www.paramountplus.com/it/",        tag:"Film e serie", color:"#234d9a"},
+  {id:"timvision",name:"TIMVISION",          url:"https://www.timvision.it",                 tag:"Film e serie", color:"#21357a"},
+  {id:"discovery",name:"discovery+",         url:"https://www.discoveryplus.com/it",         tag:"Documentari",  color:"#1f4fa0"},
+  {id:"dazn",     name:"DAZN",               url:"https://www.dazn.com/it-IT",               tag:"Sport",        color:"#3b3b1c"},
+  {id:"crunchy",  name:"Crunchyroll",        url:"https://www.crunchyroll.com/it",           tag:"Anime",        color:"#8a4a17"},
+  {id:"mubi",     name:"MUBI",               url:"https://mubi.com/it",                      tag:"Cinema d'autore", color:"#2a2a33"},
+  {id:"youtube",  name:"YouTube",            url:"https://www.youtube.com",                  tag:"Video",        color:"#7d1d1d"},
+  {id:"raiplay",  name:"RaiPlay",            url:"https://www.raiplay.it",                   tag:"Gratis",       color:"#1e3f7d", free:true},
+  {id:"mediaset", name:"Mediaset Infinity",  url:"https://mediasetinfinity.mediaset.it",     tag:"Gratis",       color:"#5b2a7a", free:true},
+  {id:"la7",      name:"La7",                url:"https://www.la7.it",                       tag:"Gratis",       color:"#6d2828", free:true},
+  {id:"pluto",    name:"Pluto TV",           url:"https://pluto.tv/it",                      tag:"Canali gratis", color:"#40406d", free:true},
+  {id:"plex",     name:"Plex",               url:"https://watch.plex.tv",                    tag:"Gratis + tuoi file", color:"#4f3d12", free:true},
+];
+const DEFAULT = ["netflix","prime","disney","now","appletv","youtube"];
+
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem("maitv:"+k); return v?JSON.parse(v):d }catch(e){ return d } },
+  set(k,v){ try{ localStorage.setItem("maitv:"+k,JSON.stringify(v)) }catch(e){} }
+};
+let mine = store.get("mine", DEFAULT);
+let custom = store.get("custom", []);
+let last = store.get("last", "netflix");
+let editing = false;
+
+const all = () => [...CATALOG, ...custom];
+const byId = id => all().find(a=>a.id===id);
+const mono = n => n.replace(/[^A-Za-z0-9+]/g,"").slice(0,2) || "TV";
+
+function tileEl(a, removable){
+  const el = document.createElement("a");
+  el.className="tile"; el.href=a.url; el.target="_blank"; el.rel="noopener";
+  el.style.setProperty("--tile", a.color||"#333");
+  el.dataset.id=a.id;
+  el.innerHTML = `<span class="mono"></span><span class="name"></span>`;
+  el.querySelector(".mono").textContent = mono(a.name);
+  el.querySelector(".name").innerHTML = "";
+  const n=el.querySelector(".name"); n.textContent=a.name;
+  const t=document.createElement("div"); t.className="tag"; t.textContent=a.tag||"App"; n.appendChild(t);
+  el.addEventListener("click", e=>{
+    if(editing){ e.preventDefault(); return }
+    last=a.id; store.set("last",last); renderHero();
+  });
+  if(removable){
+    const x=document.createElement("button"); x.className="x"; x.textContent="×"; x.setAttribute("aria-label","Rimuovi "+a.name);
+    x.addEventListener("click", e=>{ e.preventDefault(); e.stopPropagation(); mine=mine.filter(i=>i!==a.id); store.set("mine",mine); render(); });
+    el.appendChild(x);
+  }
+  return el;
+}
+
+function render(){
+  const my=document.getElementById("myApps"); my.innerHTML="";
+  mine.map(byId).filter(Boolean).forEach(a=>my.appendChild(tileEl(a,true)));
+  const add=document.createElement("button"); add.className="tile add";
+  add.innerHTML='<span class="plus">+</span><span>Aggiungi app</span>';
+  add.addEventListener("click", openSheet); my.appendChild(add);
+  document.getElementById("count").textContent = mine.length+" installate";
+
+  const fr=document.getElementById("freeApps"); fr.innerHTML="";
+  CATALOG.filter(a=>a.free).forEach(a=>fr.appendChild(tileEl(a,false)));
+  renderHero();
+}
+function renderHero(){
+  const a = byId(last) || byId(mine[0]) || CATALOG[0];
+  document.getElementById("heroTitle").textContent=a.name;
+  document.getElementById("heroGo").href=a.url;
+  document.getElementById("heroGo").textContent="▶ Apri "+a.name;
+  document.getElementById("hero").style.setProperty("--hue", a.color);
+}
+
+/* clock */
+function tick(){
+  const d=new Date();
+  document.getElementById("time").textContent=d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("date").textContent=d.toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+}
+tick(); setInterval(tick, 15000);
+
+/* search via JustWatch */
+document.getElementById("searchForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const q=document.getElementById("q").value.trim(); if(!q) return;
+  const a=document.createElement("a"); a.href="https://www.justwatch.com/it/cerca?q="+encodeURIComponent(q); a.target="_blank"; a.rel="noopener"; document.body.appendChild(a); a.click(); a.remove();
+});
+
+/* edit mode */
+const editBtn=document.getElementById("editBtn");
+editBtn.addEventListener("click",()=>{ editing=!editing; editBtn.setAttribute("aria-pressed",editing); editBtn.textContent=editing?"Fine":"Modifica"; document.getElementById("app").classList.toggle("editing",editing); });
+
+/* catalog sheet */
+const sheet=document.getElementById("sheet");
+function openSheet(){
+  const c=document.getElementById("catalog"); c.innerHTML="";
+  all().forEach(a=>{
+    const l=document.createElement("label");
+    l.innerHTML=`<input type="checkbox" id="cb-${a.id}"><span class="dot"></span><span></span>`;
+    l.querySelector(".dot").style.background=a.color;
+    l.lastChild.textContent=a.name;
+    const cb=l.querySelector("input"); cb.checked=mine.includes(a.id);
+    cb.addEventListener("change",()=>{ mine = cb.checked ? [...mine,a.id] : mine.filter(i=>i!==a.id); store.set("mine",mine); render(); });
+    c.appendChild(l);
+  });
+  sheet.hidden=false; c.querySelector("input")?.focus();
+}
+document.getElementById("closeSheet").addEventListener("click",()=>{ sheet.hidden=true; });
+sheet.addEventListener("click",e=>{ if(e.target===sheet) sheet.hidden=true; });
+document.getElementById("customForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const err=document.getElementById("cErr");
+  const name=document.getElementById("cName").value.trim();
+  let url=document.getElementById("cUrl").value.trim();
+  if(!name||!url){ err.textContent="Inserisci sia il nome sia l'indirizzo del servizio."; err.hidden=false; return }
+  if(!/^https?:\/\//i.test(url)) url="https://"+url;
+  try{ new URL(url) }catch(_){ err.textContent="L'indirizzo non è valido. Prova con qualcosa come rakuten.tv/it"; err.hidden=false; return }
+  err.hidden=true;
+  const palette=["#4a2f6e","#24515e","#6b3a24","#2f5530","#5a2340","#2b3f73"];
+  const app={id:"c"+Date.now(),name,url,tag:"Aggiunta da te",color:palette[custom.length%palette.length]};
+  custom.push(app); mine.push(app.id); store.set("custom",custom); store.set("mine",mine);
+  e.target.reset(); render(); openSheet();
+});
+
+/* remote-style spatial navigation */
+function focusables(){ return [...document.querySelectorAll(sheet.hidden ? ".tile, #heroGo, #q, #editBtn" : "#sheet input, #sheet button")].filter(el=>el.offsetParent!==null) }
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && !sheet.hidden){ sheet.hidden=true; return }
+  if(e.key==="/" && document.activeElement.tagName!=="INPUT"){ e.preventDefault(); document.getElementById("q").focus(); return }
+  const dirs={ArrowRight:[1,0],ArrowLeft:[-1,0],ArrowDown:[0,1],ArrowUp:[0,-1]};
+  if(!dirs[e.key]) return;
+  const cur=document.activeElement;
+  if(cur.tagName==="INPUT" && cur.type!=="checkbox" && (e.key==="ArrowLeft"||e.key==="ArrowRight")) return;
+  const els=focusables();
+  if(!els.includes(cur)){ e.preventDefault(); (document.querySelector("#myApps .tile")||els[0])?.focus(); return }
+  const [dx,dy]=dirs[e.key]; const r=cur.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  let best=null, bestScore=Infinity;
+  for(const el of els){ if(el===cur) continue;
+    const b=el.getBoundingClientRect(); const x=b.left+b.width/2-cx, y=b.top+b.height/2-cy;
+    const along=x*dx+y*dy; if(along<=4) continue;
+    const across=Math.abs(x*dy)+Math.abs(y*dx);
+    const s=along+across*2.5; if(s<bestScore){bestScore=s;best=el}
+  }
+  if(best){ e.preventDefault(); best.focus(); best.scrollIntoView({block:"nearest",behavior:"smooth"}) }
+});
+
+render();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
