@@ -25,6 +25,8 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
 html,body{min-height:100%}
 html,body{margin:0}
 body{padding-top:max(20px,env(safe-area-inset-top,0px));background:radial-gradient(1200px 600px at 80% -10%, #1d2540 0%, var(--bg) 60%) fixed, var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;
@@ -94,6 +96,49 @@ section h2 small{font-family:var(--body);font-size:13px;color:var(--muted);font-
 .hint{color:var(--muted);font-size:13px;line-height:1.5;margin:0}
 .foot{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:18px}
 kbd{font-family:var(--body);background:var(--panel);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-size:12px;color:var(--fg)}
+
+/* poster shelves */
+#posters{display:flex;flex-direction:column;gap:30px}
+.shelf{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(118px,13vw,168px);gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:8px 6px 14px;margin:-8px -6px 0;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.poster{scroll-snap-align:start;background:none;border:0;padding:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0;border-radius:12px}
+.poster .art{position:relative;aspect-ratio:2/3;max-width:100%;border-radius:12px;overflow:hidden;background:linear-gradient(160deg,var(--panel),var(--bg2));box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;transition:transform .18s ease, box-shadow .18s ease;display:flex;align-items:flex-end}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.poster .noimg{padding:12px;font-family:var(--display);font-weight:700;font-size:15px;line-height:1.1;color:var(--muted)}
+.poster .kind{position:absolute;top:8px;left:8px;z-index:1;background:rgba(5,7,12,.72);color:var(--fg);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:3px 6px}
+.poster .ttl{font-size:13px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.poster .yr{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.poster:focus-visible{outline:none}
+.poster:focus-visible .art,.poster:hover .art{transform:scale(1.05);box-shadow:0 0 0 3px var(--accent),0 16px 36px rgba(0,0,0,.5)}
+.skeleton .art{animation:pulse 1.2s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.45}to{opacity:.9}}
+@media (prefers-reduced-motion:reduce){.poster .art{transition:none}.skeleton .art{animation:none}}
+
+/* TMDB setup card */
+.setup{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:28px}
+@media (max-width:760px){.setup{grid-template-columns:1fr;padding:22px}}
+.setup h2{margin:0 0 8px}
+.setup ol{margin:12px 0 0;padding-left:20px;line-height:1.6;color:#c7cbdb}
+.setup ol a{color:var(--accent)}
+.keyform{display:flex;flex-direction:column;gap:10px;align-self:end}
+.keyform input{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+.keyform .acts{display:flex;gap:10px;flex-wrap:wrap}
+.credit{color:var(--muted);font-size:12px}
+
+/* detail modal */
+.detail .box{padding:0;gap:0;width:min(780px,100%)}
+.detail .bd{position:relative;aspect-ratio:16/7;max-width:100%;background:var(--panel) center/cover no-repeat;border-radius:18px 18px 0 0}
+.detail .bd::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--bg2));border-radius:inherit}
+.detail .in{padding:0 26px 26px;margin-top:-40px;position:relative;display:flex;flex-direction:column;gap:14px}
+.detail h3{font-size:clamp(24px,4vw,34px);line-height:1;letter-spacing:-.02em;text-wrap:balance}
+.detail .meta{color:var(--muted);font-size:13px;display:flex;gap:12px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.detail .ov{margin:0;line-height:1.55;color:#c7cbdb;max-width:65ch}
+.detail h4{margin:6px 0 0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.provs{display:flex;flex-wrap:wrap;gap:8px}
+.prov{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:9px 12px;background:var(--panel);border:1px solid var(--line);text-decoration:none;font-weight:600;font-size:14px}
+a.prov{background:var(--pc,#2a3148);border-color:transparent;color:#fff}
+a.prov.yours{box-shadow:0 0 0 2px var(--accent)}
+.prov small{font-weight:500;opacity:.8;font-size:11px}
+.dclose{position:absolute;top:12px;right:12px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:rgba(5,7,12,.7);color:#fff;font-size:20px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -126,6 +171,26 @@ kbd{font-family:var(--body);background:var(--panel);border:1px solid var(--line)
     <div class="row" id="myApps"></div>
   </section>
 
+  <div id="posters"></div>
+
+  <section class="setup" id="tmdbSetup" hidden>
+    <div>
+      <h2>Aggiungi le locandine alla home</h2>
+      <p class="hint">mAiTV usa TMDB, un database di film e serie gratuito, per mostrarti i titoli di tendenza e quelli disponibili sulle tue app in Italia. Ti serve una chiave personale, gratis:</p>
+      <ol>
+        <li>Crea un account su <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a></li>
+        <li>Vai in <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Impostazioni → API</a> e richiedi una chiave per uso personale</li>
+        <li>Copia la <b>Chiave API</b> (o il Token di accesso in lettura) e incollala qui</li>
+      </ol>
+    </div>
+    <form class="keyform" id="keyForm">
+      <label for="tmdbKey" class="hint">Chiave TMDB · resta salvata solo su questo dispositivo</label>
+      <input id="tmdbKey" autocomplete="off" spellcheck="false" placeholder="es. 3f9a1c… oppure eyJhbGciOi…">
+      <div class="acts"><button class="btn" type="submit" id="keySave">Attiva le locandine</button></div>
+      <p class="err" id="keyErr" hidden></p>
+    </form>
+  </section>
+
   <section>
     <h2>Gratis in Italia <small>con o senza registrazione</small></h2>
     <div class="row" id="freeApps"></div>
@@ -136,6 +201,7 @@ kbd{font-family:var(--body);background:var(--panel);border:1px solid var(--line)
     <span><kbd>Invio</kbd> apri</span>
     <span><kbd>/</kbd> cerca</span>
     <span>La ricerca usa JustWatch Italia per dirti dove guardare un titolo.</span>
+    <span class="credit" id="tmdbCredit" hidden>Locandine e disponibilità: TMDB e JustWatch. Questo prodotto usa l'API di TMDB ma non è approvato né certificato da TMDB.</span>
   </div>
 </div>
 
@@ -152,7 +218,25 @@ kbd{font-family:var(--body);background:var(--panel);border:1px solid var(--line)
       </form>
       <p class="err" id="cErr" hidden></p>
     </div>
+    <div>
+      <p class="hint" style="margin-bottom:8px">Locandine (TMDB): <span id="keyState">non attive</span></p>
+      <button class="btn alt" type="button" id="keyReset">Cambia o rimuovi la chiave</button>
+    </div>
     <div style="display:flex;justify-content:flex-end"><button class="btn" id="closeSheet">Fatto</button></div>
+  </div>
+</div>
+
+<div class="sheet detail" id="detail" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div class="bd" id="dBd"><button class="dclose" id="dClose" aria-label="Chiudi">×</button></div>
+    <div class="in">
+      <h3 id="dTitle"></h3>
+      <div class="meta" id="dMeta"></div>
+      <p class="ov" id="dOv"></p>
+      <h4>Dove guardarlo in Italia</h4>
+      <div class="provs" id="dProvs"><span class="hint">Cerco i servizi…</span></div>
+      <div class="provs" id="dMore"></div>
+    </div>
   </div>
 </div>
 
@@ -251,7 +335,7 @@ document.getElementById("searchForm").addEventListener("submit", e=>{
 
 /* edit mode */
 const editBtn=document.getElementById("editBtn");
-editBtn.addEventListener("click",()=>{ editing=!editing; editBtn.setAttribute("aria-pressed",editing); editBtn.textContent=editing?"Fine":"Modifica"; document.getElementById("app").classList.toggle("editing",editing); });
+editBtn.addEventListener("click",()=>{ editing=!editing; editBtn.setAttribute("aria-pressed",editing); editBtn.textContent=editing?"Fine":"Modifica"; document.getElementById("app").classList.toggle("editing",editing); if(!editing) refreshPostersIfChanged(); });
 
 /* catalog sheet */
 const sheet=document.getElementById("sheet");
@@ -268,8 +352,8 @@ function openSheet(){
   });
   sheet.hidden=false; c.querySelector("input")?.focus();
 }
-document.getElementById("closeSheet").addEventListener("click",()=>{ sheet.hidden=true; });
-sheet.addEventListener("click",e=>{ if(e.target===sheet) sheet.hidden=true; });
+document.getElementById("closeSheet").addEventListener("click",()=>{ closeModal(); refreshPostersIfChanged(); });
+sheet.addEventListener("click",e=>{ if(e.target===sheet){ closeModal(); refreshPostersIfChanged(); } });
 document.getElementById("customForm").addEventListener("submit",e=>{
   e.preventDefault();
   const err=document.getElementById("cErr");
@@ -285,10 +369,174 @@ document.getElementById("customForm").addEventListener("submit",e=>{
   e.target.reset(); render(); openSheet();
 });
 
+/* ---------- TMDB posters ---------- */
+// TMDB provider ids (watch region IT) for each app in the catalog
+const PROVIDERS = {
+  netflix:[8,1796], prime:[119,9], disney:[337], now:[39], skygo:[29], appletv:[350,2],
+  paramount:[531,582], timvision:[109], discovery:[584,524], crunchy:[283], mubi:[11],
+  youtube:[192], raiplay:[222], mediaset:[359], pluto:[300], plex:[538]
+};
+const IMG = "https://image.tmdb.org/t/p/";
+let tmdbKey = store.get("tmdbKey", "");
+const norm = s => (s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+
+async function tmdb(path, params={}, key=tmdbKey){
+  const u = new URL("https://api.themoviedb.org/3/"+path);
+  u.searchParams.set("language","it-IT");
+  for(const [k,v] of Object.entries(params)) u.searchParams.set(k,v);
+  const headers = {accept:"application/json"};
+  if(key.startsWith("eyJ")) headers.Authorization = "Bearer "+key; else u.searchParams.set("api_key",key);
+  const r = await fetch(u, {headers});
+  if(r.status===401) throw Object.assign(new Error("chiave"), {auth:true});
+  if(!r.ok) throw new Error("TMDB "+r.status);
+  return r.json();
+}
+
+function appForProvider(p){
+  for(const [id,ids] of Object.entries(PROVIDERS)) if(ids.includes(p.provider_id)) return byId(id);
+  const n = norm(p.provider_name);
+  return all().find(a=>{ const m=norm(a.name); return m.length>2 && (n.startsWith(m) || m.startsWith(n)) });
+}
+
+function posterEl(item, kind){
+  const media = item.media_type || kind;
+  const title = item.title || item.name || "";
+  const date = item.release_date || item.first_air_date || "";
+  const b = document.createElement("button");
+  b.className = "poster"; b.type = "button";
+  b.setAttribute("aria-label", title + (date?" ("+date.slice(0,4)+")":""));
+  b.innerHTML = `<div class="art"><span class="kind"></span></div><div><div class="ttl"></div><div class="yr"></div></div>`;
+  b.querySelector(".kind").textContent = media==="tv" ? "Serie" : "Film";
+  const art = b.querySelector(".art");
+  if(item.poster_path){ const i=new Image(); i.loading="lazy"; i.alt=""; i.src=IMG+"w342"+item.poster_path; art.prepend(i) }
+  else { const n=document.createElement("span"); n.className="noimg"; n.textContent=title; art.appendChild(n) }
+  b.querySelector(".ttl").textContent = title;
+  b.querySelector(".yr").textContent = date.slice(0,4);
+  b.addEventListener("click", ()=>openDetail(item, media, b));
+  return b;
+}
+
+function shelf(title, note){
+  const s=document.createElement("section");
+  s.innerHTML=`<h2><span></span> <small></small></h2><div class="shelf"></div>`;
+  s.querySelector("h2 span").textContent=title; s.querySelector("small").textContent=note||"";
+  const row=s.querySelector(".shelf");
+  for(let i=0;i<8;i++){ const k=document.createElement("div"); k.className="poster skeleton"; k.innerHTML='<div class="art"></div>'; row.appendChild(k) }
+  document.getElementById("posters").appendChild(s);
+  return {s,row};
+}
+function fill(sh, items, kind){
+  sh.row.innerHTML="";
+  const list=items.filter(x=>(x.media_type||kind)!=="person").slice(0,20);
+  if(!list.length){ sh.s.remove(); return }
+  list.forEach(x=>sh.row.appendChild(posterEl(x,kind)));
+}
+
+let loadToken=0;
+async function loadPosters(){
+  const box=document.getElementById("posters"); box.innerHTML="";
+  const setup=document.getElementById("tmdbSetup");
+  document.getElementById("keyState").textContent = tmdbKey ? "attive" : "non attive";
+  document.getElementById("tmdbCredit").hidden = !tmdbKey;
+  if(!tmdbKey){ setup.hidden=false; return }
+  setup.hidden=true;
+  const token=++loadToken;
+  const ids=[...new Set(mine.flatMap(id=>PROVIDERS[id]||[]))];
+  const names=mine.map(byId).filter(a=>a&&PROVIDERS[a.id]).map(a=>a.name);
+  const note = names.length ? names.slice(0,4).join(", ")+(names.length>4?" e altre":"") : "";
+  const jobs=[{sh:shelf("Di tendenza questa settimana","in Italia"), p:tmdb("trending/all/week"), kind:"movie"}];
+  if(ids.length){
+    const q={watch_region:"IT",with_watch_providers:ids.join("|"),with_watch_monetization_types:"flatrate|free|ads",sort_by:"popularity.desc"};
+    jobs.push({sh:shelf("Film sulle tue app",note), p:tmdb("discover/movie",q), kind:"movie"});
+    jobs.push({sh:shelf("Serie sulle tue app",note), p:tmdb("discover/tv",q), kind:"tv"});
+  }
+  for(const j of jobs){
+    try{ const d=await j.p; if(token!==loadToken) return; fill(j.sh,d.results||[],j.kind) }
+    catch(e){
+      if(token!==loadToken) return;
+      if(e.auth){ box.innerHTML=""; setup.hidden=false; showKeyErr("TMDB non ha accettato la chiave salvata. Incollala di nuovo."); return }
+      j.sh.row.innerHTML='<p class="hint">Non riesco a caricare questa riga. Controlla la connessione e ricarica la pagina.</p>';
+    }
+  }
+}
+
+function showKeyErr(msg){ const e=document.getElementById("keyErr"); e.textContent=msg; e.hidden=!msg }
+document.getElementById("keyForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const k=document.getElementById("tmdbKey").value.trim();
+  if(!k){ showKeyErr("Incolla la chiave che trovi in Impostazioni → API su themoviedb.org."); return }
+  const btn=document.getElementById("keySave"); btn.disabled=true; btn.textContent="Verifico la chiave…"; showKeyErr("");
+  try{
+    await tmdb("configuration",{},k);
+    tmdbKey=k; store.set("tmdbKey",k); document.getElementById("tmdbKey").value=""; loadPosters();
+  }catch(err){
+    showKeyErr(err.auth ? "Questa chiave non è valida. Copia la Chiave API (32 caratteri) o il Token di accesso in lettura da Impostazioni → API." : "Non riesco a contattare TMDB. Controlla la connessione e riprova.");
+  }finally{ btn.disabled=false; btn.textContent="Attiva le locandine" }
+});
+document.getElementById("keyReset").addEventListener("click",()=>{
+  tmdbKey=""; store.set("tmdbKey",""); closeModal(); loadPosters();
+  document.getElementById("tmdbSetup").scrollIntoView({block:"center"}); document.getElementById("tmdbKey").focus();
+});
+
+/* detail */
+const detail=document.getElementById("detail");
+let returnFocus=null;
+function provLink(p, app){
+  if(!app){ const s=document.createElement("span"); s.className="prov"; s.textContent=p.provider_name; return s }
+  const a=document.createElement("a"); a.className="prov"+(mine.includes(app.id)?" yours":""); a.href=app.url; a.target="_blank"; a.rel="noopener";
+  a.style.setProperty("--pc",app.color); a.textContent="▶ "+app.name;
+  if(mine.includes(app.id)){ const s=document.createElement("small"); s.textContent="nelle tue app"; a.appendChild(s) }
+  a.addEventListener("click",()=>{ last=app.id; store.set("last",last); renderHero() });
+  return a;
+}
+async function openDetail(item, media, from){
+  returnFocus=from;
+  const title=item.title||item.name||"";
+  document.getElementById("dTitle").textContent=title;
+  const bd=document.getElementById("dBd");
+  const pic=item.backdrop_path||item.poster_path;
+  bd.style.backgroundImage = pic ? `url("${IMG}w780${pic}")` : "";
+  const date=item.release_date||item.first_air_date||"";
+  const meta=[media==="tv"?"Serie TV":"Film", date.slice(0,4)];
+  if(item.vote_average) meta.push("★ "+item.vote_average.toFixed(1).replace(".",",")+"/10");
+  const m=document.getElementById("dMeta"); m.innerHTML=""; meta.filter(Boolean).forEach(t=>{ const s=document.createElement("span"); s.textContent=t; m.appendChild(s) });
+  document.getElementById("dOv").textContent=item.overview||"Trama non disponibile in italiano.";
+  const pv=document.getElementById("dProvs"), more=document.getElementById("dMore");
+  pv.innerHTML='<span class="hint">Cerco i servizi…</span>'; more.innerHTML="";
+  detail.hidden=false; document.getElementById("dClose").focus();
+  try{
+    const d=await tmdb(`${media}/${item.id}/watch/providers`);
+    if(detail.hidden) return;
+    const it=(d.results||{}).IT||{};
+    const subs=[...(it.flatrate||[]),...(it.free||[]),...(it.ads||[])];
+    const seen=new Set(); pv.innerHTML="";
+    subs.sort((a,b)=>{ const A=appForProvider(a),B=appForProvider(b); return (B&&mine.includes(B.id))-(A&&mine.includes(A.id)) })
+      .forEach(p=>{ const app=appForProvider(p); const key=app?app.id:p.provider_name; if(seen.has(key)) return; seen.add(key); pv.appendChild(provLink(p,app)) });
+    if(!pv.children.length) pv.innerHTML='<span class="hint">Al momento non è incluso in nessun abbonamento in Italia.</span>';
+    const paid=[...(it.rent||[]),...(it.buy||[])].map(p=>p.provider_name).filter((v,i,a)=>a.indexOf(v)===i);
+    if(paid.length){ const s=document.createElement("span"); s.className="hint"; s.textContent="A noleggio o in acquisto su: "+paid.slice(0,6).join(", "); more.appendChild(s) }
+    const jw=document.createElement("a"); jw.className="btn alt"; jw.target="_blank"; jw.rel="noopener";
+    jw.href = it.link || "https://www.justwatch.com/it/cerca?q="+encodeURIComponent(title);
+    jw.textContent="Tutte le opzioni su JustWatch"; more.appendChild(jw);
+  }catch(e){ pv.innerHTML='<span class="hint">Non riesco a sapere dove si trova. Riprova tra poco.</span>' }
+}
+function closeModal(){
+  const wasDetail=!detail.hidden;
+  sheet.hidden=true; detail.hidden=true;
+  if(wasDetail && returnFocus) returnFocus.focus({preventScroll:true});
+}
+document.getElementById("dClose").addEventListener("click", closeModal);
+detail.addEventListener("click",e=>{ if(e.target===detail) closeModal() });
+
 /* remote-style spatial navigation */
-function focusables(){ return [...document.querySelectorAll(sheet.hidden ? ".tile, #heroGo, #q, #editBtn" : "#sheet input, #sheet button")].filter(el=>el.offsetParent!==null) }
+function openModalEl(){ return !detail.hidden ? detail : (!sheet.hidden ? sheet : null) }
+function focusables(){
+  const m=openModalEl();
+  const sel = m ? "input, button, a[href]" : ".tile, .poster:not(.skeleton), #heroGo, #q, #editBtn, #tmdbKey, #keySave";
+  return [...(m||document).querySelectorAll(sel)].filter(el=>el.offsetParent!==null && !el.disabled)
+}
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape" && !sheet.hidden){ sheet.hidden=true; return }
+  if((e.key==="Escape"||e.key==="GoBack"||e.key==="BrowserBack"||e.key==="Backspace"&&document.activeElement.tagName!=="INPUT") && openModalEl()){ e.preventDefault(); closeModal(); return }
   if(e.key==="/" && document.activeElement.tagName!=="INPUT"){ e.preventDefault(); document.getElementById("q").focus(); return }
   const dirs={ArrowRight:[1,0],ArrowLeft:[-1,0],ArrowDown:[0,1],ArrowUp:[0,-1]};
   if(!dirs[e.key]) return;
@@ -304,10 +552,13 @@ document.addEventListener("keydown",e=>{
     const across=Math.abs(x*dy)+Math.abs(y*dx);
     const s=along+across*2.5; if(s<bestScore){bestScore=s;best=el}
   }
-  if(best){ e.preventDefault(); best.focus(); best.scrollIntoView({block:"nearest",behavior:"smooth"}) }
+  if(best){ e.preventDefault(); best.focus({preventScroll:true}); best.scrollIntoView({block:"nearest",inline:"nearest",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}) }
 });
 
+let posterSig="";
+function refreshPostersIfChanged(){ const sig=mine.join(","); if(sig!==posterSig){ posterSig=sig; loadPosters() } }
 render();
+refreshPostersIfChanged();
 </script>
 
 <script>

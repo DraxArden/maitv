@@ -1,5 +1,5 @@
 // mAiTV service worker: tiene in cache la home così si apre anche offline.
-const CACHE = "maitv-v1";
+const CACHE = "maitv-v2";
 const FILES = [
   "./",
   "./index.html",

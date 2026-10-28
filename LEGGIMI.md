@@ -45,3 +45,17 @@ poi apri http://localhost:8000
 ## Aggiornarla
 
 Dopo aver modificato i file, cambia `maitv-v1` in `maitv-v2` dentro `sw.js`, così chi l'ha installata riceve la nuova versione.
+
+## Locandine (TMDB)
+
+La home mostra i titoli di tendenza e i film e le serie disponibili sulle tue app in Italia, usando TMDB.
+
+1. Crea un account gratuito su https://www.themoviedb.org
+2. Vai in Impostazioni → API e richiedi una chiave per uso personale
+3. Apri mAiTV, incolla la **Chiave API** (o il Token di accesso in lettura) nel riquadro "Aggiungi le locandine alla home" e premi **Attiva le locandine**
+
+La chiave resta salvata solo nel browser di quel dispositivo e non finisce nel repository. Per cambiarla: **Aggiungi app → Cambia o rimuovi la chiave**.
+
+Premi una locandina per vedere trama, voto e su quali servizi si trova. I servizi che hai già tra le tue app sono evidenziati e si aprono con un clic.
+
+Questo prodotto usa l'API di TMDB ma non è approvato né certificato da TMDB.
