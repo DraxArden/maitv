@@ -138,6 +138,8 @@ kbd{font-family:var(--body);background:var(--panel);border:1px solid var(--line)
 a.prov{background:var(--pc,#2a3148);border-color:transparent;color:#fff}
 a.prov.yours{box-shadow:0 0 0 2px var(--accent)}
 .prov small{font-weight:500;opacity:.8;font-size:11px}
+.tile .logo{width:58px;height:58px;max-width:100%;border-radius:14px;object-fit:cover;position:relative;z-index:1;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.prov img{width:24px;height:24px;border-radius:6px;object-fit:cover;flex:none}
 .dclose{position:absolute;top:12px;right:12px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:rgba(5,7,12,.7);color:#fff;font-size:20px;cursor:pointer}
 </style>
 </head>
@@ -282,7 +284,9 @@ function tileEl(a, removable){
   el.style.setProperty("--tile", a.color||"#333");
   el.dataset.id=a.id;
   el.innerHTML = `<span class="mono"></span><span class="name"></span>`;
-  el.querySelector(".mono").textContent = mono(a.name);
+  const lg = (typeof logos!=="undefined") && logos[a.id];
+  if(lg){ const i=new Image(); i.className="logo"; i.alt=""; i.src="https://image.tmdb.org/t/p/w154"+lg; i.onerror=()=>{ const m=document.createElement("span"); m.className="mono"; m.textContent=mono(a.name); i.replaceWith(m) }; el.querySelector(".mono").replaceWith(i) }
+  else el.querySelector(".mono").textContent = mono(a.name);
   el.querySelector(".name").innerHTML = "";
   const n=el.querySelector(".name"); n.textContent=a.name;
   const t=document.createElement("div"); t.className="tag"; t.textContent=a.tag||"App"; n.appendChild(t);
@@ -378,6 +382,24 @@ const PROVIDERS = {
 };
 const IMG = "https://image.tmdb.org/t/p/";
 let tmdbKey = store.get("tmdbKey", "");
+var logos = store.get("logos", {});
+let logosLoaded = false;
+// Official service logos come from TMDB's provider list, loaded with the user's own key
+async function loadLogos(){
+  if(!tmdbKey || logosLoaded) return; logosLoaded = true;
+  try{
+    const [m,t] = await Promise.all([tmdb("watch/providers/movie",{watch_region:"IT"}), tmdb("watch/providers/tv",{watch_region:"IT"})]);
+    const list=[...(m.results||[]),...(t.results||[])].filter(p=>p.logo_path);
+    const byPid=new Map(list.map(p=>[p.provider_id,p]));
+    const next={};
+    for(const a of all()){
+      const hit=(PROVIDERS[a.id]||[]).map(id=>byPid.get(id)).find(Boolean)
+        || list.find(p=>{ const n=norm(p.provider_name), k=norm(a.name); return k.length>2 && (n===k || n.startsWith(k)) });
+      if(hit) next[a.id]=hit.logo_path;
+    }
+    logos=next; store.set("logos",logos); render();
+  }catch(e){ logosLoaded=false }
+}
 const norm = s => (s||"").toLowerCase().replace(/[^a-z0-9]/g,"");
 
 async function tmdb(path, params={}, key=tmdbKey){
@@ -440,6 +462,7 @@ async function loadPosters(){
   document.getElementById("tmdbCredit").hidden = !tmdbKey;
   if(!tmdbKey){ setup.hidden=false; return }
   setup.hidden=true;
+  loadLogos();
   const token=++loadToken;
   const ids=[...new Set(mine.flatMap(id=>PROVIDERS[id]||[]))];
   const names=mine.map(byId).filter(a=>a&&PROVIDERS[a.id]).map(a=>a.name);
@@ -474,7 +497,7 @@ document.getElementById("keyForm").addEventListener("submit", async e=>{
   }finally{ btn.disabled=false; btn.textContent="Attiva le locandine" }
 });
 document.getElementById("keyReset").addEventListener("click",()=>{
-  tmdbKey=""; store.set("tmdbKey",""); closeModal(); loadPosters();
+  tmdbKey=""; store.set("tmdbKey",""); logos={}; logosLoaded=false; store.set("logos",{}); render(); closeModal(); loadPosters();
   document.getElementById("tmdbSetup").scrollIntoView({block:"center"}); document.getElementById("tmdbKey").focus();
 });
 
@@ -482,9 +505,10 @@ document.getElementById("keyReset").addEventListener("click",()=>{
 const detail=document.getElementById("detail");
 let returnFocus=null;
 function provLink(p, app){
-  if(!app){ const s=document.createElement("span"); s.className="prov"; s.textContent=p.provider_name; return s }
+  if(!app){ const s=document.createElement("span"); s.className="prov"; s.textContent=p.provider_name; if(p.logo_path){ const i=new Image(); i.alt=""; i.src=IMG+"w92"+p.logo_path; s.prepend(i) } return s }
   const a=document.createElement("a"); a.className="prov"+(mine.includes(app.id)?" yours":""); a.href=app.url; a.target="_blank"; a.rel="noopener";
   a.style.setProperty("--pc",app.color); a.textContent="▶ "+app.name;
+  const lp=p.logo_path||logos[app.id]; if(lp){ const i=new Image(); i.alt=""; i.src=IMG+"w92"+lp; a.textContent=app.name; a.prepend(i) }
   if(mine.includes(app.id)){ const s=document.createElement("small"); s.textContent="nelle tue app"; a.appendChild(s) }
   a.addEventListener("click",()=>{ last=app.id; store.set("last",last); renderHero() });
   return a;
