@@ -99,7 +99,17 @@ kbd{font-family:var(--body);background:var(--panel);border:1px solid var(--line)
 
 /* poster shelves */
 #posters{display:flex;flex-direction:column;gap:30px}
-.shelf{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(118px,13vw,168px);gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:8px 6px 14px;margin:-8px -6px 0;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.shelfwrap{position:relative}
+.nav{position:absolute;top:0;bottom:56px;z-index:4;width:52px;border:0;padding:0;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s ease;border-radius:12px}
+.nav span{width:42px;height:42px;border-radius:50%;background:rgba(5,7,12,.82);box-shadow:0 0 0 1px rgba(255,255,255,.14),0 6px 18px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;transition:transform .15s ease, background .15s ease}
+.nav:hover span{background:var(--accent);color:var(--accent-ink);transform:scale(1.08)}
+.nav.prev{left:-6px;background:linear-gradient(90deg,var(--bg) 10%,transparent)}
+.nav.next{right:-6px;background:linear-gradient(270deg,var(--bg) 10%,transparent)}
+.shelfwrap:hover .nav,.nav:focus-visible{opacity:1}
+.nav[hidden]{display:none!important}
+@media (hover:none){.nav{display:none}}
+@media (prefers-reduced-motion:reduce){.nav,.nav span{transition:none}}
+.shelf{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(118px,13vw,168px);gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding-inline:6px;padding:8px 6px 14px;margin:-8px -6px 0;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .poster{scroll-snap-align:start;background:none;border:0;padding:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0;border-radius:12px}
 .poster .art{position:relative;aspect-ratio:2/3;max-width:100%;border-radius:12px;overflow:hidden;background:linear-gradient(160deg,var(--panel),var(--bg2));box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;transition:transform .18s ease, box-shadow .18s ease;display:flex;align-items:flex-end}
 .poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -440,9 +450,18 @@ function posterEl(item, kind){
 
 function shelf(title, note){
   const s=document.createElement("section");
-  s.innerHTML=`<h2><span></span> <small></small></h2><div class="shelf"></div>`;
+  s.innerHTML=`<h2><span></span> <small></small></h2><div class="shelfwrap"><button class="nav prev" type="button" tabindex="-1" aria-label="Scorri indietro" hidden><span aria-hidden="true">‹</span></button><div class="shelf"></div><button class="nav next" type="button" tabindex="-1" aria-label="Scorri avanti" hidden><span aria-hidden="true">›</span></button></div>`;
   s.querySelector("h2 span").textContent=title; s.querySelector("small").textContent=note||"";
   const row=s.querySelector(".shelf");
+  const prev=s.querySelector(".nav.prev"), next=s.querySelector(".nav.next");
+  const update=()=>{ const max=row.scrollWidth-row.clientWidth; prev.hidden=row.scrollLeft<=4; next.hidden=row.scrollLeft>=max-4 };
+  const page=dir=>{ const step=Math.max(row.clientWidth*0.85,160); row.scrollBy({left:dir*step,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}) };
+  prev.addEventListener("click",()=>page(-1)); next.addEventListener("click",()=>page(1));
+  row.addEventListener("scroll",update,{passive:true});
+  // mouse wheel: vertical scroll over a shelf moves it sideways, until it reaches an end
+  row.addEventListener("wheel",e=>{ if(Math.abs(e.deltaY)<=Math.abs(e.deltaX)||e.shiftKey) return; const max=row.scrollWidth-row.clientWidth; if((e.deltaY<0&&row.scrollLeft<=0)||(e.deltaY>0&&row.scrollLeft>=max)) return; e.preventDefault(); row.scrollLeft+=e.deltaY },{passive:false});
+  if(window.ResizeObserver) new ResizeObserver(update).observe(row); else addEventListener("resize",update);
+  row._update=update;
   for(let i=0;i<8;i++){ const k=document.createElement("div"); k.className="poster skeleton"; k.innerHTML='<div class="art"></div>'; row.appendChild(k) }
   document.getElementById("posters").appendChild(s);
   return {s,row};
@@ -452,6 +471,7 @@ function fill(sh, items, kind){
   const list=items.filter(x=>(x.media_type||kind)!=="person").slice(0,20);
   if(!list.length){ sh.s.remove(); return }
   list.forEach(x=>sh.row.appendChild(posterEl(x,kind)));
+  sh.row._update&&requestAnimationFrame(sh.row._update);
 }
 
 let loadToken=0;
